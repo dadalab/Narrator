@@ -36,9 +36,9 @@ class NarratorPlugin {
         <style>
         /* Visible focus style for accessibility */
         .narrator-focus:focus {
-            outline: 2px solid #2563eb !important;
+            outline: 2px solid var(--dl-blue) !important;
             outline-offset: 2px;
-            box-shadow: 0 0 0 2px #2563eb33;
+            box-shadow: 0 0 0 2px rgba(49, 120, 192, 0.2);
         }
         </style>
         <div id="narrator-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: system-ui, sans-serif;">
@@ -49,7 +49,7 @@ class NarratorPlugin {
                      aria-label="Open Narrator controls"
                      tabindex="0"
                      style="width: 56px; height: 56px; 
-                        background: #dadada; border-radius: 25%; display: flex; align-items: center; 
+                        background: var(--dl-rule); border-radius: 25%; display: flex; align-items: center; 
                         justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
                         <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm14.024-.983a1.125 1.125 0 0 1 0 1.966l-5.603 3.113A1.125 1.125 0 0 1 9 15.113V8.887c0-.857.921-1.4 1.671-.983l5.603 3.113Z" clip-rule="evenodd" />
@@ -62,11 +62,11 @@ class NarratorPlugin {
                 <div style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 200px;">
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                         <div>
-                            <div style="font-weight: 500; font-size: 14px; color: #1f2937;">Narration</div>
-                            <div style="font-size: 12px; color: #6b7280;">Listen to this page</div>
+                            <div style="font-weight: 500; font-size: 14px; color: var(--dl-teal-ink);">Narration</div>
+                            <div style="font-size: 12px; color: var(--dl-gray-1);">Listen to this page</div>
                         </div>
                     </div>
-                    <button id="narrator-play-btn" class="narrator-focus" style="width: 100%; background: #dadada; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                    <button id="narrator-play-btn" class="narrator-focus" style="width: 100%; background: var(--dl-rule); color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
                         aria-label="Expand narration controls and start reading">
                         ▶ Start reading
                     </button>
@@ -79,38 +79,38 @@ class NarratorPlugin {
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div>
-                                <div style="font-weight: 500; font-size: 14px; color: #1f2937;">Narration</div>
-                                <div style="font-size: 12px; color: #6b7280;">Ready to read</div>
+                                <div style="font-weight: 500; font-size: 14px; color: var(--dl-teal-ink);">Narration</div>
+                                <div style="font-size: 12px; color: var(--dl-gray-1);">Ready to read</div>
                             </div>
                         </div>
-                        <button id="narrator-close-btn" class="narrator-focus" style="background: none; border: none; color: #6b7280; cursor: pointer; font-size: 18px;"
+                        <button id="narrator-close-btn" class="narrator-focus" style="background: none; border: none; color: var(--dl-gray-1); cursor: pointer; font-size: 18px;"
                             aria-label="Close Narrator controls">×</button>
                     </div>
                     
                     <div style="margin-bottom: 16px;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <button id="narrator-play-pause" class="narrator-focus" style="background: #dadada; color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                            <button id="narrator-play-pause" class="narrator-focus" style="background: var(--dl-rule); color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
                                 aria-label="Play page narration">
                                 ▶ Play
                             </button>
-                            <button id="narrator-stop" class="narrator-focus" style="background: #dadada; color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                            <button id="narrator-stop" class="narrator-focus" style="background: var(--dl-rule); color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
                                 aria-label="Stop page narration">
                                 ⏹ Stop
                             </button>
                         </div>
                         
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <span id="narrator-current-time" style="font-size: 12px; color: #6b7280; min-width: 40px;" aria-live="polite">0:00</span>
-                            <div style="flex: 1; height: 4px; background: #e5e7eb; border-radius: 2px; position: relative;">
-                                <div id="narrator-progress" style="height: 100%; background: #3b82f6; border-radius: 2px; width: 0%; transition: width 0.1s;"></div>
+                            <span id="narrator-current-time" style="font-size: 12px; color: var(--dl-gray-1); min-width: 40px;" aria-live="polite">0:00</span>
+                            <div style="flex: 1; height: 4px; background: var(--dl-rule); border-radius: 2px; position: relative;">
+                                <div id="narrator-progress" style="height: 100%; background: var(--dl-blue); border-radius: 2px; width: 0%; transition: width 0.1s;"></div>
                             </div>
-                            <span id="narrator-total-time" style="font-size: 12px; color: #6b7280; min-width: 40px;">0:00</span>
+                            <span id="narrator-total-time" style="font-size: 12px; color: var(--dl-gray-1); min-width: 40px;">0:00</span>
                         </div>
                         
                         <div style="margin-top: 12px;">
-                            <label for="narrator-speed" style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 4px;">Speed:</label>
-                            <input type="range" id="narrator-speed" min="0.5" max="2" step="0.1" value="1" style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; outline: none;" aria-valuemin="0.5" aria-valuemax="2" aria-valuenow="1" aria-label="Narration speed">
-                            <div style="display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; margin-top: 2px;">
+                            <label for="narrator-speed" style="font-size: 12px; color: var(--dl-gray-1); display: block; margin-bottom: 4px;">Speed:</label>
+                            <input type="range" id="narrator-speed" min="0.5" max="2" step="0.1" value="1" style="width: 100%; height: 4px; background: var(--dl-rule); border-radius: 2px; outline: none;" aria-valuemin="0.5" aria-valuemax="2" aria-valuenow="1" aria-label="Narration speed">
+                            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--dl-gray-2); margin-top: 2px;">
                                 <span>0.5x</span>
                                 <span>1x</span>
                                 <span>2x</span>
@@ -118,8 +118,8 @@ class NarratorPlugin {
                         </div>
                     </div>
                     
-                    <div id="narrator-text-preview" style="background: #f9fafb; border-radius: 6px; padding: 12px; max-height: 120px; overflow-y: auto; font-size: 13px; line-height: 1.4; color: #4b5563; border: 1px solid #e5e7eb;">
-                        <div id="narrator-stats" style="font-size: 11px; color: #6b7280; margin-bottom: 8px;"></div>
+                    <div id="narrator-text-preview" style="background: var(--dl-aurora-bg); border-radius: 6px; padding: 12px; max-height: 120px; overflow-y: auto; font-size: 13px; line-height: 1.4; color: var(--dl-contrast); border: 1px solid var(--dl-rule);">
+                        <div id="narrator-stats" style="font-size: 11px; color: var(--dl-gray-1); margin-bottom: 8px;"></div>
                         <div id="narrator-text-content">Click play to start reading...</div>
                     </div>
                 </div>
@@ -131,38 +131,38 @@ class NarratorPlugin {
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div>
-                                <div style="font-weight: 500; font-size: 14px; color: #1f2937;">Narration</div>
-                                <div style="font-size: 12px; color: #6b7280;">● Playing</div>
+                                <div style="font-weight: 500; font-size: 14px; color: var(--dl-teal-ink);">Narration</div>
+                                <div style="font-size: 12px; color: var(--dl-gray-1);">● Playing</div>
                             </div>
                         </div>
-                        <button id="narrator-minimize-btn" class="narrator-focus" style="background: none; border: none; color: #6b7280; cursor: pointer; font-size: 18px;"
+                        <button id="narrator-minimize-btn" class="narrator-focus" style="background: none; border: none; color: var(--dl-gray-1); cursor: pointer; font-size: 18px;"
                             aria-label="Minimize Narrator controls">−</button>
                     </div>
                     
                     <div style="margin-bottom: 16px;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <button id="narrator-pause" class="narrator-focus" style="background: #dadada; color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                            <button id="narrator-pause" class="narrator-focus" style="background: var(--dl-rule); color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
                                 aria-label="Pause page narration">
                                 ⏸ Pause
                             </button>
-                            <button id="narrator-stop-playing" class="narrator-focus" style="background: #dadada; color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                            <button id="narrator-stop-playing" class="narrator-focus" style="background: var(--dl-rule); color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
                                 aria-label="Stop page narration">
                                 ⏹ Stop
                             </button>
                         </div>
                         
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <span id="narrator-current-time-playing" style="font-size: 12px; color: #6b7280; min-width: 40px;" aria-live="polite">0:00</span>
-                            <div style="flex: 1; height: 4px; background: #e5e7eb; border-radius: 2px; position: relative;">
-                                <div id="narrator-progress-playing" style="height: 100%; background: #10b981; border-radius: 2px; width: 0%; transition: width 0.1s;"></div>
+                            <span id="narrator-current-time-playing" style="font-size: 12px; color: var(--dl-gray-1); min-width: 40px;" aria-live="polite">0:00</span>
+                            <div style="flex: 1; height: 4px; background: var(--dl-rule); border-radius: 2px; position: relative;">
+                                <div id="narrator-progress-playing" style="height: 100%; background: var(--dl-dusty-emerald); border-radius: 2px; width: 0%; transition: width 0.1s;"></div>
                             </div>
-                            <span id="narrator-total-time-playing" style="font-size: 12px; color: #6b7280; min-width: 40px;">0:00</span>
+                            <span id="narrator-total-time-playing" style="font-size: 12px; color: var(--dl-gray-1); min-width: 40px;">0:00</span>
                         </div>
                         
                         <div style="margin-top: 12px;">
-                            <label for="narrator-speed-playing" style="font-size: 12px; color: #6b7280; display: block; margin-bottom: 4px;">Speed:</label>
-                            <input type="range" id="narrator-speed-playing" min="0.5" max="2" step="0.1" value="1" style="width: 100%; height: 4px; background: #e5e7eb; border-radius: 2px; outline: none;" aria-valuemin="0.5" aria-valuemax="2" aria-valuenow="1" aria-label="Narration speed">
-                            <div style="display: flex; justify-content: space-between; font-size: 10px; color: #9ca3af; margin-top: 2px;">
+                            <label for="narrator-speed-playing" style="font-size: 12px; color: var(--dl-gray-1); display: block; margin-bottom: 4px;">Speed:</label>
+                            <input type="range" id="narrator-speed-playing" min="0.5" max="2" step="0.1" value="1" style="width: 100%; height: 4px; background: var(--dl-rule); border-radius: 2px; outline: none;" aria-valuemin="0.5" aria-valuemax="2" aria-valuenow="1" aria-label="Narration speed">
+                            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--dl-gray-2); margin-top: 2px;">
                                 <span>0.5x</span>
                                 <span>1x</span>
                                 <span>2x</span>
@@ -170,8 +170,8 @@ class NarratorPlugin {
                         </div>
                     </div>
                     
-                    <div id="narrator-text-preview-playing" style="background: #f0fdf4; border-radius: 6px; padding: 12px; max-height: 120px; overflow-y: auto; font-size: 13px; line-height: 1.4; color: #4b5563; border: 1px solid #bbf7d0;">
-                        <div id="narrator-stats-playing" style="font-size: 11px; color: #6b7280; margin-bottom: 8px;"></div>
+                    <div id="narrator-text-preview-playing" style="background: rgba(37, 159, 152, 0.08); border-radius: 6px; padding: 12px; max-height: 120px; overflow-y: auto; font-size: 13px; line-height: 1.4; color: var(--dl-contrast); border: 1px solid rgba(37, 159, 152, 0.25);">
+                        <div id="narrator-stats-playing" style="font-size: 11px; color: var(--dl-gray-1); margin-bottom: 8px;"></div>
                         <div id="narrator-text-content-playing">Reading page content...</div>
                     </div>
                 </div>
