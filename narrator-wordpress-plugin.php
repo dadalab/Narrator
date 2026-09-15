@@ -127,7 +127,7 @@ class NarratorPlugin {
             
             <!-- Playing State -->
             <div id="narrator-playing" class="narrator-state" style="display: none;">
-                <div style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 300px;">
+                <div style="background: var(--dl-aurora-bg); border-radius: 8px; padding: 16px; border: 1px solid rgba(15, 90, 65, 0.16); width: 300px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div>
