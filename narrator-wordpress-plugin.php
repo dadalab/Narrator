@@ -59,14 +59,14 @@ class NarratorPlugin {
             
             <!-- Hover State -->
             <div id="narrator-hover" class="narrator-state" style="display: none;">
-                <div style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 200px;">
+                <div style="background: var(--dl-aurora-bg); border-radius: 8px; padding: 16px; border: 1px solid rgba(15, 90, 65, 0.16); width: 200px;">
                     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                         <div>
                             <div style="font-weight: 500; font-size: 14px; color: var(--dl-teal-ink);">Narration</div>
-                            <div style="font-size: 12px; color: var(--dl-gray-1);">Listen to this page</div>
+                            <div style="font-size: 12px; color: var(--dl-dusty-emerald);">Listen to this page</div>
                         </div>
                     </div>
-                    <button id="narrator-play-btn" class="narrator-focus" style="width: 100%; background: var(--dl-rule); color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                    <button id="narrator-play-btn" class="narrator-focus" style="width: 100%; background: var(--dl-dusty-emerald); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
                         aria-label="Expand narration controls and start reading">
                         ▶ Start reading
                     </button>
@@ -75,12 +75,12 @@ class NarratorPlugin {
             
             <!-- Expanded State -->
             <div id="narrator-expanded" class="narrator-state" style="display: none;">
-                <div style="background: white; border-radius: 8px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 300px;">
+                <div style="background: var(--dl-aurora-bg); border-radius: 8px; padding: 16px; border: 1px solid rgba(15, 90, 65, 0.16); width: 300px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div>
                                 <div style="font-weight: 500; font-size: 14px; color: var(--dl-teal-ink);">Narration</div>
-                                <div style="font-size: 12px; color: var(--dl-gray-1);">Ready to read</div>
+                                <div style="font-size: 12px; color: var(--dl-dusty-emerald);">Ready to read</div>
                             </div>
                         </div>
                         <button id="narrator-close-btn" class="narrator-focus" style="background: none; border: none; color: var(--dl-gray-1); cursor: pointer; font-size: 18px;"
@@ -89,11 +89,11 @@ class NarratorPlugin {
                     
                     <div style="margin-bottom: 16px;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <button id="narrator-play-pause" class="narrator-focus" style="background: var(--dl-rule); color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                            <button id="narrator-play-pause" class="narrator-focus" style="background: var(--dl-dusty-emerald); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
                                 aria-label="Play page narration">
                                 ▶ Play
                             </button>
-                            <button id="narrator-stop" class="narrator-focus" style="background: var(--dl-rule); color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                            <button id="narrator-stop" class="narrator-focus" style="background: transparent; color: var(--dl-teal-ink); box-shadow: inset 0 0 0 1px rgba(15, 90, 65, 0.2); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
                                 aria-label="Stop page narration">
                                 ⏹ Stop
                             </button>
@@ -119,7 +119,7 @@ class NarratorPlugin {
                     </div>
                     
                     <div id="narrator-text-preview" style="background: var(--dl-aurora-bg); border-radius: 6px; padding: 12px; max-height: 120px; overflow-y: auto; font-size: 13px; line-height: 1.4; color: var(--dl-contrast); border: 1px solid var(--dl-rule);">
-                        <div id="narrator-stats" style="font-size: 11px; color: var(--dl-gray-1); margin-bottom: 8px;"></div>
+                        <div id="narrator-stats" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--dl-teal-deep); margin-bottom: 8px;"></div>
                         <div id="narrator-text-content">Click play to start reading...</div>
                     </div>
                 </div>
@@ -132,7 +132,7 @@ class NarratorPlugin {
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <div>
                                 <div style="font-weight: 500; font-size: 14px; color: var(--dl-teal-ink);">Narration</div>
-                                <div style="font-size: 12px; color: var(--dl-gray-1);">● Playing</div>
+                                <div style="font-size: 12px; color: var(--dl-dusty-emerald);">● Playing</div>
                             </div>
                         </div>
                         <button id="narrator-minimize-btn" class="narrator-focus" style="background: none; border: none; color: var(--dl-gray-1); cursor: pointer; font-size: 18px;"
@@ -141,11 +141,11 @@ class NarratorPlugin {
                     
                     <div style="margin-bottom: 16px;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                            <button id="narrator-pause" class="narrator-focus" style="background: var(--dl-rule); color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                            <button id="narrator-pause" class="narrator-focus" style="background: var(--dl-dusty-emerald); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
                                 aria-label="Pause page narration">
                                 ⏸ Pause
                             </button>
-                            <button id="narrator-stop-playing" class="narrator-focus" style="background: var(--dl-rule); color: black; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
+                            <button id="narrator-stop-playing" class="narrator-focus" style="background: transparent; color: var(--dl-teal-ink); box-shadow: inset 0 0 0 1px rgba(15, 90, 65, 0.2); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;"
                                 aria-label="Stop page narration">
                                 ⏹ Stop
                             </button>
@@ -171,7 +171,7 @@ class NarratorPlugin {
                     </div>
                     
                     <div id="narrator-text-preview-playing" style="background: rgba(37, 159, 152, 0.08); border-radius: 6px; padding: 12px; max-height: 120px; overflow-y: auto; font-size: 13px; line-height: 1.4; color: var(--dl-contrast); border: 1px solid rgba(37, 159, 152, 0.25);">
-                        <div id="narrator-stats-playing" style="font-size: 11px; color: var(--dl-gray-1); margin-bottom: 8px;"></div>
+                        <div id="narrator-stats-playing" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--dl-teal-deep); margin-bottom: 8px;"></div>
                         <div id="narrator-text-content-playing">Reading page content...</div>
                     </div>
                 </div>
