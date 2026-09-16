@@ -15,21 +15,14 @@ if (!defined('ABSPATH')) {
 class NarratorPlugin {
     
     public function __construct() {
-        add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         add_action('wp_footer', array($this, 'add_narrator_widget'));
         add_action('wp_ajax_extract_page_content', array($this, 'extract_page_content'));
         add_action('wp_ajax_nopriv_extract_page_content', array($this, 'extract_page_content'));
     }
-    
-    public function enqueue_scripts() {
-        wp_enqueue_script('narrator-widget', plugin_dir_url(__FILE__) . 'narrator-widget.js', array('jquery'), '1.0.0', true);
-        wp_enqueue_style('narrator-widget', plugin_dir_url(__FILE__) . 'narrator-widget.css', array(), '1.0.0');
-        
-        wp_localize_script('narrator-widget', 'narrator_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('narrator_nonce')
-        ));
-    }
+    // Removed enqueue_scripts(): it requested narrator-widget.js/.css, files
+    // that never existed alongside this plugin file. All CSS/JS ship inline
+    // via add_narrator_widget() -> wp_footer. The enqueue calls only produced
+    // two 404 requests on every page load. Fixed 2026-09-16.
     
     public function add_narrator_widget() {
         ?>
@@ -185,8 +178,10 @@ class NarratorPlugin {
             let isPlaying = false;
             let pageContent = '';
             let currentPosition = 0;
+            let pausedElapsed = 0;
             let totalDuration = 0;
             let startTime = 0;
+            let progressInterval = null;
             
             const states = {
                 collapsed: document.getElementById('narrator-collapsed'),
@@ -233,14 +228,23 @@ class NarratorPlugin {
                     );
                     
                     if (!shouldSkip) {
-                        const text = element.textContent?.trim();
+                        let text = element.textContent?.trim();
                         if (text && text.length > 15 && !textArray.includes(text)) {
+                            // Give each block its own terminal punctuation, so a
+                            // heading followed immediately by a paragraph doesn't
+                            // get read as one run-on sentence with no pause.
+                            if (!/[.!?:;]$/.test(text)) {
+                                text += '.';
+                            }
                             textArray.push(text);
                         }
                     }
                 });
                 
-                return textArray.join(' ');
+                // A blank line between blocks reads as a real pause to the speech
+                // engine, closer to how a person would actually pace reading a
+                // heading, then a paragraph, then a list item, than a single space.
+                return textArray.join('\n\n');
             }
             
             function formatTime(seconds) {
@@ -252,7 +256,7 @@ class NarratorPlugin {
             function updateProgress() {
                 if (!isPlaying || !currentUtterance) return;
                 
-                const elapsed = (Date.now() - startTime) / 1000;
+                const elapsed = pausedElapsed + (Date.now() - startTime) / 1000;
                 const progress = Math.min(elapsed / totalDuration, 1) * 100;
                 
                 const progressBars = [
@@ -275,6 +279,9 @@ class NarratorPlugin {
             }
             
             function startReading() {
+                pausedElapsed = 0;
+                currentPosition = 0;
+
                 if (!pageContent) {
                     pageContent = extractPageContent();
                 }
@@ -284,7 +291,7 @@ class NarratorPlugin {
                     return;
                 }
                 
-                const wordCount = pageContent.split(/s+/).filter(w => w.length > 0).length;
+                const wordCount = pageContent.split(/\s+/).filter(w => w.length > 0).length;
                 const readingTime = Math.ceil(wordCount / 200);
                 
                 // Update stats in both states
@@ -322,9 +329,16 @@ class NarratorPlugin {
                 
                 // Create and start speech synthesis
                 currentUtterance = new SpeechSynthesisUtterance(pageContent);
-                currentUtterance.rate = 1;
+                currentUtterance.rate = parseFloat(document.getElementById('narrator-speed').value) || 1;
                 currentUtterance.pitch = 1;
                 currentUtterance.volume = 1;
+
+                // Tracks how far into pageContent speech actually is, so a mid-read
+                // speed change (or a future pause/resume) can pick up from here
+                // instead of jumping back to character 0.
+                currentUtterance.onboundary = function(event) {
+                    currentPosition = event.charIndex;
+                };
                 
                 currentUtterance.onend = function() {
                     isPlaying = false;
@@ -343,30 +357,51 @@ class NarratorPlugin {
                 setState('playing');
                 
                 // Start progress tracking
-                const progressInterval = setInterval(() => {
+                startProgressInterval();
+            }
+
+            function startProgressInterval() {
+                if (progressInterval) clearInterval(progressInterval);
+                progressInterval = setInterval(() => {
                     if (isPlaying) {
                         updateProgress();
                     } else {
                         clearInterval(progressInterval);
+                        progressInterval = null;
                     }
                 }, 100);
             }
             
             function pauseReading() {
                 if (speechSynthesis.speaking) {
+                    pausedElapsed += (Date.now() - startTime) / 1000;
                     speechSynthesis.pause();
                     isPlaying = false;
                     setState('expanded');
                 }
             }
+
+            function resumeReading() {
+                if (currentUtterance && speechSynthesis.paused) {
+                    speechSynthesis.resume();
+                    isPlaying = true;
+                    startTime = Date.now();
+                    setState('playing');
+                    startProgressInterval();
+                } else {
+                    // Nothing paused to resume (first play, or already finished) -- start fresh.
+                    startReading();
+                }
+            }
             
             function stopReading() {
-                if (speechSynthesis.speaking) {
+                if (speechSynthesis.speaking || speechSynthesis.paused) {
                     speechSynthesis.cancel();
                 }
                 isPlaying = false;
                 currentUtterance = null;
                 currentPosition = 0;
+                pausedElapsed = 0;
                 setState('expanded');
             }
             
@@ -383,19 +418,38 @@ class NarratorPlugin {
                 }
             });
             
+            const headphonesToggle = document.querySelector('.narrator-headphones');
+
+            function openExpanded() {
+                setState('expanded');
+                const firstControl = document.getElementById('narrator-play-pause');
+                if (firstControl) firstControl.focus();
+            }
+
+            function collapseAndReturnFocus() {
+                setState('collapsed');
+                if (headphonesToggle) headphonesToggle.focus();
+            }
+
+            if (headphonesToggle) {
+                headphonesToggle.addEventListener('click', openExpanded);
+                headphonesToggle.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+                        e.preventDefault();
+                        openExpanded();
+                    }
+                });
+            }
+
             document.getElementById('narrator-play-btn').addEventListener('click', () => {
                 setState('expanded');
             });
             
-            document.getElementById('narrator-close-btn').addEventListener('click', () => {
-                setState('collapsed');
-            });
+            document.getElementById('narrator-close-btn').addEventListener('click', collapseAndReturnFocus);
             
-            document.getElementById('narrator-minimize-btn').addEventListener('click', () => {
-                setState('collapsed');
-            });
+            document.getElementById('narrator-minimize-btn').addEventListener('click', collapseAndReturnFocus);
             
-            document.getElementById('narrator-play-pause').addEventListener('click', startReading);
+            document.getElementById('narrator-play-pause').addEventListener('click', resumeReading);
             document.getElementById('narrator-pause').addEventListener('click', pauseReading);
             document.getElementById('narrator-stop').addEventListener('click', stopReading);
             document.getElementById('narrator-stop-playing').addEventListener('click', stopReading);
@@ -418,20 +472,33 @@ class NarratorPlugin {
                             
                             // Apply new rate
                             if (isPlaying) {
+                                const resumeFrom = currentPosition;
                                 speechSynthesis.cancel();
-                                const remainingText = pageContent.substring(currentPosition);
+                                pausedElapsed += (Date.now() - startTime) / 1000;
+                                const remainingText = pageContent.substring(resumeFrom);
                                 currentUtterance = new SpeechSynthesisUtterance(remainingText);
                                 currentUtterance.rate = newRate;
                                 currentUtterance.pitch = 1;
                                 currentUtterance.volume = 1;
+
+                                currentUtterance.onboundary = function(event) {
+                                    currentPosition = resumeFrom + event.charIndex;
+                                };
                                 
                                 currentUtterance.onend = function() {
+                                    isPlaying = false;
+                                    setState('expanded');
+                                };
+
+                                currentUtterance.onerror = function(event) {
+                                    console.error('Speech synthesis error:', event.error);
                                     isPlaying = false;
                                     setState('expanded');
                                 };
                                 
                                 speechSynthesis.speak(currentUtterance);
                                 startTime = Date.now();
+                                startProgressInterval();
                             }
                         }
                     });
