@@ -228,14 +228,23 @@ class NarratorPlugin {
                     );
                     
                     if (!shouldSkip) {
-                        const text = element.textContent?.trim();
+                        let text = element.textContent?.trim();
                         if (text && text.length > 15 && !textArray.includes(text)) {
+                            // Give each block its own terminal punctuation, so a
+                            // heading followed immediately by a paragraph doesn't
+                            // get read as one run-on sentence with no pause.
+                            if (!/[.!?:;]$/.test(text)) {
+                                text += '.';
+                            }
                             textArray.push(text);
                         }
                     }
                 });
                 
-                return textArray.join(' ');
+                // A blank line between blocks reads as a real pause to the speech
+                // engine, closer to how a person would actually pace reading a
+                // heading, then a paragraph, then a list item, than a single space.
+                return textArray.join('\n\n');
             }
             
             function formatTime(seconds) {
