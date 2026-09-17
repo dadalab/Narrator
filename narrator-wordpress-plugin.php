@@ -182,6 +182,7 @@ class NarratorPlugin {
             let totalDuration = 0;
             let startTime = 0;
             let progressInterval = null;
+            let lastWordCount = 0;
             
             const states = {
                 collapsed: document.getElementById('narrator-collapsed'),
@@ -195,6 +196,15 @@ class NarratorPlugin {
                     states[key].style.display = key === newState ? 'block' : 'none';
                 });
                 currentState = newState;
+            }
+
+            // Site-wide GA4 (Site Kit's gtag.js) is already loaded on every page, same
+            // pipe the contact form's form_submit event uses. Guarded so a blocked or
+            // slow-to-load tag never breaks playback.
+            function trackEvent(name, params) {
+                if (typeof gtag === 'function') {
+                    gtag('event', name, params || {});
+                }
             }
             
             function extractPageContent() {
@@ -253,10 +263,16 @@ class NarratorPlugin {
                 return mins + ':' + secs.toString().padStart(2, '0');
             }
             
+            // Shared with the pause/stop analytics events below, so the progress bar
+            // and the reported elapsed time can never drift apart from each other.
+            function currentElapsedSeconds() {
+                return pausedElapsed + (isPlaying ? (Date.now() - startTime) / 1000 : 0);
+            }
+
             function updateProgress() {
                 if (!isPlaying || !currentUtterance) return;
-                
-                const elapsed = pausedElapsed + (Date.now() - startTime) / 1000;
+
+                const elapsed = currentElapsedSeconds();
                 const progress = Math.min(elapsed / totalDuration, 1) * 100;
                 
                 const progressBars = [
@@ -292,6 +308,7 @@ class NarratorPlugin {
                 }
                 
                 const wordCount = pageContent.split(/\s+/).filter(w => w.length > 0).length;
+                lastWordCount = wordCount;
                 const readingTime = Math.ceil(wordCount / 200);
                 
                 // Update stats in both states
@@ -355,7 +372,8 @@ class NarratorPlugin {
                 isPlaying = true;
                 startTime = Date.now();
                 setState('playing');
-                
+                trackEvent('narrator_play', { resumed: false, word_count: wordCount });
+
                 // Start progress tracking
                 startProgressInterval();
             }
@@ -378,6 +396,10 @@ class NarratorPlugin {
                     speechSynthesis.pause();
                     isPlaying = false;
                     setState('expanded');
+                    trackEvent('narrator_pause', {
+                        elapsed_seconds: Math.round(currentElapsedSeconds()),
+                        total_seconds: Math.round(totalDuration)
+                    });
                 }
             }
 
@@ -387,14 +409,25 @@ class NarratorPlugin {
                     isPlaying = true;
                     startTime = Date.now();
                     setState('playing');
+                    trackEvent('narrator_play', { resumed: true, word_count: lastWordCount });
                     startProgressInterval();
                 } else {
                     // Nothing paused to resume (first play, or already finished) -- start fresh.
                     startReading();
                 }
             }
-            
+
             function stopReading() {
+                // The Stop button is visible even before any reading has started (right
+                // after opening the panel), so only track a real session, not an idle
+                // click. Read elapsed time before any of the state below resets it.
+                if (currentUtterance) {
+                    trackEvent('narrator_stop', {
+                        elapsed_seconds: Math.round(currentElapsedSeconds()),
+                        total_seconds: Math.round(totalDuration)
+                    });
+                }
+
                 if (speechSynthesis.speaking || speechSynthesis.paused) {
                     speechSynthesis.cancel();
                 }
