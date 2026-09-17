@@ -535,6 +535,18 @@ class NarratorPlugin {
                             }
                         }
                     });
+
+                    // 'input' above fires on every tick while dragging (one gtag call per
+                    // 0.1 step would flood GA4), so track on 'change' instead, which fires
+                    // once when the user releases the slider on its final value.
+                    control.addEventListener('change', (e) => {
+                        if (currentUtterance) {
+                            trackEvent('narrator_speed_change', {
+                                rate: parseFloat(e.target.value),
+                                elapsed_seconds: Math.round(currentElapsedSeconds())
+                            });
+                        }
+                    });
                 }
             });
             
