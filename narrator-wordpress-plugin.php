@@ -269,6 +269,18 @@ class NarratorPlugin {
                 return pausedElapsed + (isPlaying ? (Date.now() - startTime) / 1000 : 0);
             }
 
+            // Called from both onend handlers below (the initial utterance, and the
+            // replacement one a mid-read speed change creates) right before isPlaying
+            // flips to false, so currentElapsedSeconds() still includes the final
+            // live segment instead of missing it.
+            function trackCompletion() {
+                trackEvent('narrator_complete', {
+                    word_count: lastWordCount,
+                    elapsed_seconds: Math.round(currentElapsedSeconds()),
+                    total_seconds: Math.round(totalDuration)
+                });
+            }
+
             function updateProgress() {
                 if (!isPlaying || !currentUtterance) return;
 
@@ -358,10 +370,11 @@ class NarratorPlugin {
                 };
                 
                 currentUtterance.onend = function() {
+                    trackCompletion();
                     isPlaying = false;
                     setState('expanded');
                 };
-                
+
                 currentUtterance.onerror = function(event) {
                     console.error('Speech synthesis error:', event.error);
                     isPlaying = false;
@@ -519,6 +532,7 @@ class NarratorPlugin {
                                 };
                                 
                                 currentUtterance.onend = function() {
+                                    trackCompletion();
                                     isPlaying = false;
                                     setState('expanded');
                                 };
