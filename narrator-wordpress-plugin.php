@@ -281,6 +281,25 @@ class NarratorPlugin {
                 });
             }
 
+            // Shared by both onerror handlers below. Cancelling an utterance on
+            // purpose (Stop, or replacing it mid-read for a speed change) can itself
+            // surface as an 'error' event on the utterance being replaced, that's not
+            // a real failure and already handled by whichever action caused it, so it
+            // marks the utterance with __expectedCancel right before cancelling and
+            // this bails out early rather than double-reporting or clobbering the
+            // state of whatever utterance (if any) is now actually playing.
+            function handleUtteranceError(utterance, event) {
+                if (utterance.__expectedCancel) return;
+                console.error('Speech synthesis error:', event.error);
+                isPlaying = false;
+                setState('expanded');
+                trackEvent('narrator_error', {
+                    reason: event.error,
+                    word_count: lastWordCount,
+                    elapsed_seconds: Math.round(currentElapsedSeconds())
+                });
+            }
+
             function updateProgress() {
                 if (!isPlaying || !currentUtterance) return;
 
@@ -376,11 +395,9 @@ class NarratorPlugin {
                 };
 
                 currentUtterance.onerror = function(event) {
-                    console.error('Speech synthesis error:', event.error);
-                    isPlaying = false;
-                    setState('expanded');
+                    handleUtteranceError(this, event);
                 };
-                
+
                 speechSynthesis.speak(currentUtterance);
                 isPlaying = true;
                 startTime = Date.now();
@@ -442,6 +459,10 @@ class NarratorPlugin {
                 }
 
                 if (speechSynthesis.speaking || speechSynthesis.paused) {
+                    // This is a deliberate stop, not a real failure -- mark it so the
+                    // utterance's own onerror (if the browser fires one) doesn't
+                    // double-report it as narrator_error.
+                    if (currentUtterance) currentUtterance.__expectedCancel = true;
                     speechSynthesis.cancel();
                 }
                 isPlaying = false;
@@ -519,6 +540,11 @@ class NarratorPlugin {
                             // Apply new rate
                             if (isPlaying) {
                                 const resumeFrom = currentPosition;
+                                // This cancel replaces the utterance with a new one at
+                                // the new rate, not a failure -- same __expectedCancel
+                                // guard as stopReading(), so onerror on the utterance
+                                // being replaced doesn't clobber the new one's state.
+                                if (currentUtterance) currentUtterance.__expectedCancel = true;
                                 speechSynthesis.cancel();
                                 pausedElapsed += (Date.now() - startTime) / 1000;
                                 const remainingText = pageContent.substring(resumeFrom);
@@ -538,11 +564,9 @@ class NarratorPlugin {
                                 };
 
                                 currentUtterance.onerror = function(event) {
-                                    console.error('Speech synthesis error:', event.error);
-                                    isPlaying = false;
-                                    setState('expanded');
+                                    handleUtteranceError(this, event);
                                 };
-                                
+
                                 speechSynthesis.speak(currentUtterance);
                                 startTime = Date.now();
                                 startProgressInterval();
